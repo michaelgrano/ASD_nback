@@ -36,7 +36,7 @@ VIQ = cell2mat(VIQ); %convert cell into array
 PIQ = cell2mat(PIQ); %convert cell into array
 FIQ = cell2mat(FIQ); %convert cell into array
 
-load('/Users/Michael/Documents/CMU/Research/ASD/nback/190825_nback_remOutliers.mat')
+load('/Users/Michael/Documents/CMU/Research/ASD/nback/nback_remOutliers.mat')
 load('/Users/Michael/Documents/CMU/Research/ASD/nback/190825_nback_remOutliers_Base.mat')
 
 subjectNumber = repeatInfo(subjectNumber);
@@ -68,7 +68,7 @@ aud = [zeros(282,1); ones(47,1)]; %tones?
 distractors = [zeros(47*3,1); ones(47*4,1)]; %condition
 
 tidyData = table(subjectNumber,diagnosis,age,female,handedness,caffeine,meds,glasses,pupilContrast,corneaContrast,ADOSComm,ADOSSoc,ADOSSocComm,ADOSBeh,VIQ,PIQ,FIQ,baseline,dprime,criterion,RT,peak,hit,FA,miss,aud,distractors);
-writetable(tidyData,'190825_tidyData.csv')
+writetable(tidyData,'tidyData.csv')
 
 function var = repeatInfo(var)
 
