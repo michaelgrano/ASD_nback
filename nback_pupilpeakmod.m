@@ -151,7 +151,8 @@ for sense = 0:1
                         sub.trialTimeVector_FA(round((r-1000)/downsampleRate)) = 1;
                     end
                 else
-                    sub.trialTimeVector_FA(blockStart(blockCount)) = 1;
+                    %if the FA is right at the start of another block
+                    sub.trialTimeVector_FA(ceil(blockStart(blockCount)/downsampleRate)) = 1;
                 end
             elseif strfind(tempstr,'No test') > 0
                 %if this is the onset of the distractor stimuli
