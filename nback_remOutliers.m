@@ -1,4 +1,4 @@
-load('/Users/Michael/Documents/CMU/Research/ASD/nback/190824_nback_pupilpeakmod.mat')
+load('/Users/Michael/Documents/CMU/Research/ASD/nback/nback_pupilpeakmod.mat')
 putativeIRFlength = 4;
 downsampleRate = 25;
 
@@ -7,7 +7,7 @@ aut_a = groups(aut_a,putativeIRFlength,downsampleRate);
 con = groups(con,putativeIRFlength,downsampleRate);
 con_a = groups(con_a,putativeIRFlength,downsampleRate);
 
-save('190825_nback_remOutliers.mat','aut','con','aut_a','con_a');
+save('nback_remOutliers.mat','aut','con','aut_a','con_a');
 
 %perform same analyses on all groups (autism/control) (distractors/no
 %distractors)
