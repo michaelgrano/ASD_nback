@@ -258,7 +258,7 @@ aut_a = rmfield(aut_a,{'time_all','psize_all'});
 con_a = rmfield(con_a,{'time_all','psize_all'});
 con = rmfield(con,{'time_all','psize_all'});
 
-save('190824_nback_pupilpeakmod.mat','aut','con','aut_a','con_a');
+save('nback_pupilpeakmod.mat','aut','con','aut_a','con_a');
 
 %interpolate blinks and missing data
 %Anne Urai, 2016, modified by eli and charlie
