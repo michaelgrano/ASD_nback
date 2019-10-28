@@ -7,8 +7,8 @@
 #SBATCH --gres=gpu:0
 #SBATCH --mem=2G
 
-cd ~/git/familiarity_sims
-conda activate mne
+cd ~/git/nback_ASD/Classification
+conda activate nback
 
 echo "$COMMAND"
 $COMMAND

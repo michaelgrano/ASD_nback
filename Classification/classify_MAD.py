@@ -16,7 +16,7 @@ def get_classifier(classifier, select_topn_perc=100, n_jobs=1):
     """
     function for getting a classifier with optional feature selection
     args:
-        classifier: one of ['ridge','svm','svm_stock'] (svm_stock is non-optimized svm)
+        classifier: one of ['lr' 'ridge','svm','svm_stock'] (svm_stock is non-optimized svm)
         select_topn_perc: top n percentile of features to select with F-test
         n_jobs: number of parallel jobs to use
     returns:
@@ -53,41 +53,36 @@ def get_classifier(classifier, select_topn_perc=100, n_jobs=1):
     return clf, manual_grid_search
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--alt', action='store_true')
-    parser.add_argument('--distractor-diff', action='store_true')
-    parser.add_argument('--short-irf', action='store_true')
-    parser.add_argument('--dtype', type=str, default='hit')
-    parser.add_argument('--n-jobs', type=int, default=1)
-    parser.add_argument('--plot', action='store_true')
-    parser.add_argument('--outer-cv', type=int, default=1)
-    parser.add_argument('--measure', type=str, choices=['MAD', 'MaxAD', 'MeanAD', 'MADs'], default='MAD')
-    parser.add_argument('--overwrite', action='store_true')
-    parser.add_argument('--compute-nulldist', action='store_true')
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--alt', action='store_true', help= 'use to run distractors condition')
+    parser.add_argument('--distractor-diff', action='store_true', help='use to take metric difference b/w distractors absent/present conditions')
+    parser.add_argument('--dtype', type=str, default='hit', choices=['hit', 'FA', 'miss'], help='trial type')
+    parser.add_argument('--n-jobs', type=int, default=1, help='number of parallel workers to use per classifier. usually not much speedup for >1')
+    parser.add_argument('--outer-cv', type=int, default=20, help='# of outer loops in cross-validation')
+    parser.add_argument('--k-folds', type=int, default=5, help='# of folds in inner cross-validation loop')
+    parser.add_argument('--measure', type=str, choices=['MAD', 'MaxAD', 'MeanAD', 'MADs'], default='MAD', help='IRF metric for decoding on; MADs uses all three')
+    parser.add_argument('--overwrite', action='store_true', help=' ')
+    parser.add_argument('--no-nulldist', action='store_true', help='use to disable nulldist compuutation and save a lot of time')
     args = parser.parse_args()
 
     # HARDCODED params
     # kfold parameters
     n_repeats = args.outer_cv
-    n_splits = 5
+    k_folds = args.k_folds
     classifiers = ['lr'] # which classifiers
-    # feature selection for non-sliding window
-    topn_perc = 100
     # for null dist
-    compute_nulldist = args.compute_nulldist
+    compute_nulldist = not args.no_nulldist
     null_tag = '_with_nulldist' if compute_nulldist else ''
     n_perms = 10000
-    n_perms_use = n_perms if compute_nulldist else 1
     # output data
-    fn = f'results/decoding_{args.dtype}{irf_tag}{alt_tag}_{args.measure}_{n_repeats}outer-cv{null_tag}.pkl'
+    fn = f'results/decoding_{args.dtype}{alt_tag}_{args.measure}_{n_repeats}outer-cv{null_tag}.pkl'
     fn_matlab = fn.replace('.pkl', '.mat')
 
     print(f'working on {fn}')
 
     # load the data from matlab (see classify.m for how it was saved)
-    irf_tag = '_2s' if args.short_irf else ''
     alt_tag = '_a' if args.alt else '_distractors-diff' if args.distractor_diff else ''
-    data = loadmat(f'data/XY{irf_tag}{alt_tag}_{args.dtype}.mat')
+    data = loadmat(f'data/XY{alt_tag}_{args.dtype}.mat')
     X = data['data']['X'][0][0]
     Y = data['data']['Y'][0][0].flatten()
 
@@ -114,15 +109,14 @@ if __name__ == "__main__":
             all_data = pickle.load(f)
     else:
         # for splitting the data, let's do 5-fold with 20 repeats
-        rskf = RepeatedStratifiedKFold(n_splits=n_splits, n_repeats=n_repeats,
-            random_state=1)
+        rskf = RepeatedStratifiedKFold(n_splits=k_folds, n_repeats=n_repeats, random_state=1)
 
         full_accs = {}
         for classifier in classifiers:
             full_acc = []
             window_acc = []
             for train_inds, test_inds in rskf.split(X, Y):
-                classif, manual_grid_search = get_classifier(classifier, select_topn_perc=topn_perc, n_jobs=args.n_jobs)
+                classif, manual_grid_search = get_classifier(classifier, n_jobs=args.n_jobs)
                 if manual_grid_search:
                     classif = classif.best_estimator_
                 classif = classif.fit(X[train_inds,:], Y[train_inds])
@@ -138,7 +132,7 @@ if __name__ == "__main__":
                 for nullperm in tqdm(range(n_perms)):
                     full_acc = []
                     for train_inds, test_inds in rskf.split(X, Y):
-                        classif, manual_grid_search = get_classifier(classifier, select_topn_perc=topn_perc, n_jobs=args.n_jobs)
+                        classif, manual_grid_search = get_classifier(classifier, n_jobs=args.n_jobs)
                         if manual_grid_search:
                             classif = classif.best_estimator_
                         X_train, Y_train = X[train_inds,:], Y[train_inds]
