@@ -12,6 +12,46 @@ import os
 from tqdm import tqdm
 from classify import get_classifier
 
+def get_classifier(classifier, select_topn_perc=100, n_jobs=1):
+    """
+    function for getting a classifier with optional feature selection
+    args:
+        classifier: one of ['ridge','svm','svm_stock'] (svm_stock is non-optimized svm)
+        select_topn_perc: top n percentile of features to select with F-test
+        n_jobs: number of parallel jobs to use
+    returns:
+        clf: the classifier
+        manual_grid_search: whether we need to do manual grid search
+    """
+    manual_grid_search = False
+    selector = None
+    if classifier == 'ridge':
+        clf_args = {'alphas': np.logspace(-3, 6, num=100), 'cv': None}
+        estimator = sklearn.linear_model.RidgeClassifierCV(**clf_args)
+        selector = sklearn.feature_selection.SelectPercentile(percentile=select_topn_perc)
+        clf = sklearn.pipeline.Pipeline([('selector', selector),
+                    ('ridge', estimator)])
+    elif classifier == 'svm':
+        estimator = sklearn.svm.SVC(kernel='linear')
+        selector = sklearn.feature_selection.SelectPercentile(percentile=select_topn_perc)
+        pipeline = sklearn.pipeline.Pipeline([('selector', selector),
+                    ('svc', estimator)])
+        param_grid = {'svc__C': np.logspace(-3, 6, num=10)}
+        clf = sklearn.model_selection.GridSearchCV(pipeline, param_grid, cv=2, n_jobs=n_jobs)
+        manual_grid_search = True
+    elif classifier == 'svm_stock':
+        estimator = sklearn.svm.SVC(kernel='linear')
+        selector = sklearn.feature_selection.SelectPercentile(percentile=select_topn_perc)
+        clf = sklearn.pipeline.Pipeline([('selector', selector),
+                    ('svc', estimator)])
+    elif classifier == 'lr':
+        clf_args = {'penalty':'none', 'solver':'saga', 'class_weight': 'balanced'}
+        estimator = sklearn.linear_model.LogisticRegression(**clf_args)
+        selector = sklearn.feature_selection.SelectPercentile(percentile=select_topn_perc)
+        clf = sklearn.pipeline.Pipeline([('selector', selector),
+                    ('lr', estimator)])
+    return clf, manual_grid_search
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--alt', action='store_true')
@@ -25,6 +65,24 @@ if __name__ == "__main__":
     parser.add_argument('--overwrite', action='store_true')
     parser.add_argument('--compute-nulldist', action='store_true')
     args = parser.parse_args()
+
+    # HARDCODED params
+    # kfold parameters
+    n_repeats = args.outer_cv
+    n_splits = 5
+    classifiers = ['lr'] # which classifiers
+    # feature selection for non-sliding window
+    topn_perc = 100
+    # for null dist
+    compute_nulldist = args.compute_nulldist
+    null_tag = '_with_nulldist' if compute_nulldist else ''
+    n_perms = 10000
+    n_perms_use = n_perms if compute_nulldist else 1
+    # output data
+    fn = f'results/decoding_{args.dtype}{irf_tag}{alt_tag}_{args.measure}_{n_repeats}outer-cv{null_tag}.pkl'
+    fn_matlab = fn.replace('.pkl', '.mat')
+
+    print(f'working on {fn}')
 
     # load the data from matlab (see classify.m for how it was saved)
     irf_tag = '_2s' if args.short_irf else ''
@@ -51,24 +109,6 @@ if __name__ == "__main__":
                                 np.mean(np.abs(X - np.expand_dims(np.mean(X, axis=1),axis=1)), axis=1)),
                                 axis=1)
 
-    # kfold parameters
-    n_repeats = args.outer_cv
-    n_splits = 5
-    # which classifiers
-    classifiers = ['lr']
-    # feature selection for non-sliding window
-    topn_perc = 100
-    # for null dist
-    compute_nulldist = args.compute_nulldist
-    null_tag = '_with_nulldist' if compute_nulldist else ''
-    n_perms = 10000
-    n_perms_use = n_perms if compute_nulldist else 1
-    # output data
-    fn = f'results/decoding_{args.dtype}{irf_tag}{alt_tag}_{args.measure}_{n_repeats}outer-cv{null_tag}.pkl'
-    fn_matlab = fn.replace('.pkl', '.mat')
-
-    print(f'working on {fn}')
-
     if os.path.exists(fn) and not args.overwrite:
         with open(fn, 'rb') as f:
             all_data = pickle.load(f)
@@ -77,7 +117,6 @@ if __name__ == "__main__":
         rskf = RepeatedStratifiedKFold(n_splits=n_splits, n_repeats=n_repeats,
             random_state=1)
 
-    ###
         full_accs = {}
         for classifier in classifiers:
             full_acc = []
