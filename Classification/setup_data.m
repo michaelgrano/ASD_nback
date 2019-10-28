@@ -1,11 +1,11 @@
 
 clearvars;
-load('nback_remOutliers.mat')
+load('data/nback_remOutliers.mat')
 
 n_tp = length(aut(1).taskIrf_miss);
 
 for dtype = {'hit', 'FA', 'miss'}
-    
+
     % no distractor (not a)
     X = [];
     Y = [];
@@ -43,7 +43,7 @@ for dtype = {'hit', 'FA', 'miss'}
         Y = [Y; 0];
     end
     data = struct('X',X,'Y',Y);
-    save(sprintf('XY_%s.mat', dtype{1}), 'data')
+    save(sprintf('data/XY_%s.mat', dtype{1}), 'data')
 
     % distractors (a)
     X = [];
@@ -82,12 +82,12 @@ for dtype = {'hit', 'FA', 'miss'}
         Y = [Y; 0];
     end
     data = struct('X',X,'Y',Y);
-    save(sprintf('XY_a_%s.mat', dtype{1}), 'data')
+    save(sprintf('data/XY_a_%s.mat', dtype{1}), 'data')
 end
 
 %% take difference
 for dtype = {'hit', 'FA', 'miss'}
-    
+
     % no distractor (not a)
     X = [];
     Y = [];
@@ -131,33 +131,5 @@ for dtype = {'hit', 'FA', 'miss'}
         Y = [Y; 0];
     end
     data = struct('X',X,'Y',Y);
-    save(sprintf('XY_distractors-diff_MAD_%s.mat', dtype{1}), 'data')
+    save(sprintf('data/XY_distractors-diff_MAD_%s.mat', dtype{1}), 'data')
 end
-
-
-%% old code for trying temporal decoding in matlab (moved to Python, see classify.py)
-
-%{
-bin_width = 10;
-accs = zeros(20,70);
-for iter = 1:20
-    for t0 = 1:70
-        SVMModel = fitcsvm(X(:,t0:t0+bin_width),Y,'Standardize',true);
-        CVSVMModel = crossval(SVMModel);
-        accs(iter, t0) = 1-kfoldLoss(CVSVMModel, 'loss', 'classiferr');
-    end
-end
-
-figure; 
-subplot(2,1,1)
-hold on
-errorbar(mean(X(1:22,:),1), std(X(1:22,:),[],1)/sqrt(22)); errorbar(mean(X(23:end,:),1), std(X(23:end,:),[],1)/sqrt(24))
-xlabel('Time point')
-ylabel('Mean IRF')
-subplot(2,1,2)
-hold on
-errorbar(mean(accs,1), std(accs,[],1)/sqrt(20))
-plot([0,80], [.5, .5], 'r')
-xlabel(sprintf('Start of %d time point window', bin_width))
-ylabel('SVM accuracy')
-%}
