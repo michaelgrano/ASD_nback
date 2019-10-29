@@ -93,13 +93,13 @@ if __name__ == "__main__":
             raise ValueError()
     else:
         if args.measure == 'MAD':
-            X = np.expand_dims(scipy.stats.median_absolute_deviation(X, axis=1),1)
+            X = np.expand_dims(np.median(np.abs(X - np.expand_dims(np.median(X, axis=1),axis=1)), axis=1),axis=1)
         elif args.measure == 'MaxAD':
             X = np.expand_dims(np.abs(np.max(X, axis=1) - np.min(X, axis=1)),1)
         elif args.measure == 'MeanAD':
             X = np.expand_dims(np.mean(np.abs(X - np.expand_dims(np.mean(X, axis=1),axis=1)), axis=1),axis=1)
         elif args.measure == 'MADs':
-            X = np.stack((scipy.stats.median_absolute_deviation(X, axis=1),
+            X = np.stack((np.median(np.abs(X - np.expand_dims(np.median(X, axis=1),axis=1)), axis=1),
                                 np.abs(np.max(X, axis=1) - np.min(X, axis=1)),
                                 np.mean(np.abs(X - np.expand_dims(np.mean(X, axis=1),axis=1)), axis=1)),
                                 axis=1)
