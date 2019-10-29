@@ -10,7 +10,6 @@ import pickle
 import argparse
 import os
 from tqdm import tqdm
-from classify import get_classifier
 
 def get_classifier(classifier, select_topn_perc=100, n_jobs=1):
     """
@@ -54,7 +53,7 @@ def get_classifier(classifier, select_topn_perc=100, n_jobs=1):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--alt', action='store_true', help= 'use to run distractors condition')
+    parser.add_argument('--distractors', action='store_true', help= 'use to run distractors condition')
     parser.add_argument('--distractor-diff', action='store_true', help='use to take metric difference b/w distractors absent/present conditions')
     parser.add_argument('--dtype', type=str, default='hit', choices=['hit', 'FA', 'miss'], help='trial type')
     parser.add_argument('--n-jobs', type=int, default=1, help='number of parallel workers to use per classifier. usually not much speedup for >1')
@@ -74,17 +73,17 @@ if __name__ == "__main__":
     compute_nulldist = not args.no_nulldist
     null_tag = '_with_nulldist' if compute_nulldist else ''
     n_perms = 10000
-    # output data
-    fn = f'results/decoding_{args.dtype}{alt_tag}_{args.measure}_{n_repeats}outer-cv{null_tag}.pkl'
-    fn_matlab = fn.replace('.pkl', '.mat')
-
-    print(f'working on {fn}')
 
     # load the data from matlab (see classify.m for how it was saved)
-    alt_tag = '_a' if args.alt else '_distractors-diff' if args.distractor_diff else ''
+    alt_tag = '_a' if args.distractors else '_distractors-diff' if args.distractor_diff else ''
     data = loadmat(f'data/XY{alt_tag}_{args.dtype}.mat')
     X = data['data']['X'][0][0]
     Y = data['data']['Y'][0][0].flatten()
+
+    # output data
+    fn = f'results/decoding_{args.dtype}{alt_tag}_{args.measure}_{n_repeats}outer-cv{null_tag}.pkl'
+    fn_matlab = fn.replace('.pkl', '.mat')
+    print(f'working on {fn}...')
 
     # compute MAD
     if args.distractor_diff:
