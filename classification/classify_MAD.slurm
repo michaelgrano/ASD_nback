@@ -4,7 +4,7 @@ overwrite='--overwrite' # set to '' to not overwrite existing results
 nd='' # set to '--no-nulldist' to avoid null dist computation (much faster)
 declare -a dtypes=('hit' 'FA' 'miss')
 declare -a dconds=('' '--distractors' '--distractor-diff')
-use_slurm=1 # set to 0 to run locally (will take some time with null distribution calculation)
+use_slurm=0 # set to 0 to run locally (will take some time with null distribution calculation)
 
 ii=0
 for dtype in ${dtypes[@]}; do

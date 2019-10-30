@@ -3,6 +3,7 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
+import os
 
 def plot_MAD_results(cv_repeats=20, short_irf=False, MAD_measure='MAD'):
     irf_tag = '_2s' if short_irf else ''
@@ -38,10 +39,10 @@ def plot_MAD_results(cv_repeats=20, short_irf=False, MAD_measure='MAD'):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cv_repeats', type=int, default=3)
-    parser.add_argument('--short-irf', action='store_true')
+    parser.add_argument('--cv_repeats', type=int, default=20)
     parser.add_argument('--MAD-measure', type=str, default='MAD', choices=['MAD', 'MaxAD', 'MeanAD', 'MADs'])
     args = parser.parse_args()
     opt = args.__dict__
 
+    os.makedirs('figures', exist_ok=True)
     plot_MAD_results(**opt)

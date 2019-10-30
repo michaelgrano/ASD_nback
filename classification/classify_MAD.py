@@ -81,6 +81,7 @@ if __name__ == "__main__":
     Y = data['data']['Y'][0][0].flatten()
 
     # output data
+    os.makedirs('results', exist_ok=True)
     fn = f'results/decoding_{args.dtype}{alt_tag}_{args.measure}_{n_repeats}outer-cv{null_tag}.pkl'
     fn_matlab = fn.replace('.pkl', '.mat')
     print(f'working on {fn}...')
