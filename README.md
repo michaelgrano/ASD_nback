@@ -32,3 +32,13 @@ Code to summarize preprocessed data and primary dependent measures of interest i
 Statistical analyses:
 
       nback_Analysis.ipynb
+
+
+Code to compute ratios of pupil response amplitudes between conditions:
+
+      nback_Ratios.m
+      
+      
+Statistical analyses of ratios:
+
+      nback_Analysis_withRatios
