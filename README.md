@@ -17,7 +17,8 @@ Code to preprocess data, do behavioral analysis, generate IRFs:
       nback_pupilpeakmod_Base.m (this is for the baseline recordings)
       
       Blink interpolation code has been adapted from the following source:
-      % This code reproduces the analyses in the paper
+
+% This code reproduces the analyses in the paper
 % Urai AE, Braun A, Donner THD (2016) Pupil-linked arousal is driven 
 % by decision uncertainty and alters serial choice bias. 
 % 
