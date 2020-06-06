@@ -60,3 +60,6 @@ Code to summarize preprocessed data and primary dependent measures of interest i
 Code to compute ratios of pupil response amplitudes between conditions:
 
       nback_Ratios.m
+      
+      
+Output of nback_export.CSV.m can be imported into nback_Analysis_IRF4_Final.ipynb to replicate primary results of analyses in paper.
