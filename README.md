@@ -63,3 +63,5 @@ Code to compute ratios of pupil response amplitudes between conditions:
       
       
 Output of nback_export.CSV.m can be imported into nback_Analysis_IRF4_Final.ipynb to replicate primary results of analyses in paper.
+
+Instructions for classification code is in Classification folder. Use ClassificationUSETHISCODE for code and data.
