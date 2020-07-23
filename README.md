@@ -12,7 +12,7 @@ Code to import/organize data into MATLAB from .csv files:
 
 Code to preprocess data, do behavioral analysis, generate IRFs:
 
-      nback_pupilpeakmod.m (this is for the experiment task)
+      nback_pupilpeakmod.m (this is for the experiment task) (_IRF4 version uses transformed RTs)
 
       nback_pupilpeakmod_Base.m (this is for the baseline recordings)
       
