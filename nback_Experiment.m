@@ -1,3 +1,5 @@
+%This code was adapted from prior experiments of Drs. Ilan Dinstein and Sarah Haigh.
+
 % 08/02/10
 % Auditory adaptation experiment.
 % Play two consecutive tones to both ears simultaneously.
