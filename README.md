@@ -1,3 +1,5 @@
+This code was used in the study "Uncharacteristic Task-Evoked Pupillary Responses Implicate Atypical Locus Ceruleus Activity in Autism" in the Journal of Neuroscience. DOI: 10.1523/JNEUROSCI2680-19.2020.
+
 Code to run experiment:
 
       nback_Experiment.m
